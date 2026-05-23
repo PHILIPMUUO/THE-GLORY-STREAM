@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Glory Stream Convocation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --deep-blue: #0d3b66;
+            --radiant-gold: #ffca28;
+            --light-bg: #fafafa;
+            --text-dark: #222222;
+            --white: #ffffff;
+            --bottom-nav-height: 65px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* Removes blue flash on mobile tap */
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding-top: 50px; /* Offset for fixed top bar */
+            padding-bottom: var(--bottom-nav-height); /* Offset for fixed bottom nav */
+            -webkit-overflow-scrolling: touch; /* Smooth momentum scrolling on iOS */
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* --- APP TOP HEADER BAR --- */
+        .app-titlebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background-color: #082b4d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            z-index: 1000;
+            border-bottom: 2px solid var(--radiant-gold);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .titlebar-title {
+            font-family: 'Bubblegum Sans', cursive;
+            color: var(--radiant-gold);
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .ctrl-btn {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.2);
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: filter 0.2s;
+        }
+
+        .ctrl-btn:hover { filter: brightness(1.2); }
+        .ctrl-btn.minimize { background-color: #ffbd2e; }
+        .ctrl-btn.maximize { background-color: #28c940; }
+        .ctrl-btn.close { background-color: #ff5f57; }
+
+        .ctrl-btn::after {
+            content: '';
+            position: absolute;
+            opacity: 0;
+            transition: opacity 0.2s;
+            color: rgba(0,0,0,0.6);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .ctrl-btn:hover::after { opacity: 1; }
+        .ctrl-btn.minimize::after { content: '−'; top: -2px; }
+        .ctrl-btn.maximize::after { content: '+'; top: -2px; }
+        .ctrl-btn.close::after { content: '×'; top: -2px; }
+
+        /* --- MOBILE APP BOTTOM NAVIGATION --- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: var(--bottom-nav-height);
+            background-color: var(--white);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            border-top: 1px solid #e0e0e0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #888;
+            transition: color 0.2s;
+            padding: 5px;
+        }
+
+        .nav-item.active, .nav-item:hover {
+            color: var(--deep-blue);
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
+        }
+
+        .nav-label {
+            font-family: 'Bubblegum Sans', cursive;
+            font-size: 0.75rem;
+        }
+
+        /* --- OVERLAY FOR CLOSE BUTTON --- */
+        .shutdown-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .shutdown-overlay.active { display: flex; }
+
+        .shutdown-overlay h2 {
+            font-family: 'Bubblegum Sans', cursive;
+            color: var(--radiant-gold);
+            font-size: clamp(2rem, 8vw, 3rem);
+            margin-bottom: 10px;
+        }
+        
+        .shutdown-overlay p {
+            color: #ccc;
+            font-size: 1.1rem;
+        }
+
+        /* --- MAIN CONTENT STYLES --- */
+        header {
+            background-color: var(--deep-blue);
+            color: var(--radiant-gold);
+            text-align: center;
+            padding: 50px 15px;
+            border-bottom: 5px solid var(--radiant-gold);
+        }
+
+        h1 {
+            font-family: 'Bubblegum Sans', cursive;
+            font-size: clamp(2.2rem, 8vw, 4rem); /* Fluid responsive typography */
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            line-height: 1.1;
+        }
+
+        section {
+            padding: 40px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        section:last-child { border-bottom: none; }
+
+        h2 {
+            font-family: 'Bubblegum Sans', cursive;
+            color: var(--deep-blue);
+            font-size: clamp(1.8rem, 6vw, 2.5rem);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h3 {
+            font-family: 'Bubblegum Sans', cursive;
+            color: var(--deep-blue);
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .scripture-ref {
+            font-style: italic;
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        /* MANDATE SPECIAL TEXT */
+        .highlight-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--deep-blue);
+            text-align: center;
+            margin: 30px 0;
+            padding: 0 10px;
+        }
+
+        /* THE NAME GRID */
+        .name-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .name-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 12px; /* Slightly rounder for mobile app feel */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--radiant-gold);
+        }
+
+        @media (min-width: 768px) {
+            .name-grid { grid-template-columns: 1fr 1fr 1fr; }
+        }
+
+        /* VISION & MISSION */
+        .vm-container {
+            background-color: var(--deep-blue);
+            color: var(--white);
+            padding: 30px 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .vm-container h2 { color: var(--radiant-gold); }
+        .vm-container h3 { color: var(--radiant-gold); margin-top: 30px; }
+        .vm-container p { color: #e0e0e0; text-align: center; }
+
+        /* PILLARS GRID */
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .pillar-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            border-left: 5px solid var(--deep-blue);
+        }
+
+        .pillar-card h3 {
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .pillar-card h3 span {
+            color: var(--radiant-gold);
+            margin-right: 10px;
+            font-size: 1.6rem;
+        }
+
+        @media (min-width: 768px) {
+            .pillars-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* CORE MESSAGE */
+        .core-message {
+            background: linear-gradient(135deg, var(--deep-blue) 0%, #1a4f82 100%);
+            color: var(--white);
+            padding: 30px 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .core-message h2 { color: var(--radiant-gold); }
+        .core-message p { color: #e0e0e0; text-align: center; max-width: 800px; margin: 0 auto 15px auto; }
+
+        /* LEADERSHIP */
+        .leadership-section { text-align: center; }
+        .leader-name {
+            font-family: 'Bubblegum Sans', cursive;
+            font-size: clamp(1.6rem, 5vw, 2.2rem);
+            color: var(--deep-blue);
+            margin-bottom: 15px;
+        }
+
+        /* FOOTER */
+        footer {
+            background-color: #222;
+            color: #888;
+            text-align: center;
+            padding: 40px 20px calc(var(--bottom-nav-height) + 20px) 20px; /* Extra padding for bottom nav */
+            font-size: 0.95rem;
+            line-height: 1.8;
+        }
+
+        /* DEVELOPER BUTTON STYLES */
+        .dev-btn {
+            display: inline-block;
+            background-color: var(--deep-blue);
+            color: var(--radiant-gold);
+            font-family: 'Bubblegum Sans', cursive;
+            padding: 14px 30px;
+            border: 2px solid var(--radiant-gold);
+            border-radius: 30px; /* Pill shape for mobile app feel */
+            text-decoration: none;
+            font-size: 1.1rem;
+            margin-top: 15px;
+            transition: all 0.2s ease;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 0 #082b4d; /* 3D press effect */
+        }
+
+        .dev-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #082b4d;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- APP TOP HEADER BAR -->
+    <div class="app-titlebar">
+        <div class="titlebar-title">GLORY STREAM</div>
+        <div class="window-controls">
+            <div class="ctrl-btn minimize" onclick="minimizeWindow()" title="Minimize"></div>
+            <div class="ctrl-btn maximize" onclick="maximizeWindow()" title="Maximize"></div>
+            <div class="ctrl-btn close" onclick="closeWindow()" title="Close"></div>
+        </div>
+    </div>
+
+    <!-- APP BOTTOM NAVIGATION BAR -->
+    <nav class="bottom-nav">
+        <a href="#mandate" class="nav-item active">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <span class="nav-label">Home</span>
+        </a>
+        <a href="#vision-mission" class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span class="nav-label">Vision</span>
+        </a>
+        <a href="#pillars" class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            <span class="nav-label">Pillars</span>
+        </a>
+        <a href="#gospel" class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <span class="nav-label">Gospel</span>
+        </a>
+    </nav>
+
+    <!-- SHUTDOWN OVERLAY -->
+    <div class="shutdown-overlay" id="shutdownScreen">
+        <h2>Until Next Time!</h2>
+        <p>Keep living the transformational worship lifestyle. See you at the next Convocation!</p>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <header id="mandate">
+        <h1>GLORY STREAM CONVOCATION</h1>
+    </header>
+
+    <div class="container">
+
+        <!-- THE MANDATE -->
+        <section>
+            <h2>The Mandate</h2>
+            <p>Glory Stream Convocation is a conventional worship gathering where the true Gospel of Jesus Christ is preached, Spirit-filled praise and worship music is unleashed, and believers are immersed in the tangible presence of God to become agents of His kingdom in their world.</p>
+            <p>We are a movement and a sacred assembly. Born from a deep hunger for authentic worship and biblical truth, Glory Stream Convocation exists to bridge the gap between the reverence of the historic faith and the freedom of Spirit-led revival. We are a gathered people dedicated to experiencing the manifest presence of God and the continuous filling of the Holy Spirit.</p>
+            <div class="highlight-text">
+                Under the leadership of PHILPEACE, this movement is issuing a call to the nations: Come out of spiritual complacency, worship God truly and Live transformed.
+            </div>
+        </section>
+
+        <!-- THE NAME -->
+        <section id="name">
+            <h2>The Name</h2>
+            <div class="name-grid">
+                <div class="name-card">
+                    <h3>GLORY</h3>
+                    <p>The manifest, tangible presence of God. It is the revelation of His character, His holiness, and His saving power, demonstrated fully through the life, death, and resurrection of Jesus Christ.</p>
+                </div>
+                <div class="name-card">
+                    <h3>STREAM</h3>
+                    <p>The continuous, ongoing work and filling of the Holy Spirit in the life of the believer. It represents the constant supply of God’s grace, power, and life that sustains us daily.</p>
+                </div>
+                <div class="name-card">
+                    <h3>CONVOCATION</h3>
+                    <p>A formal, sovereign calling together of God's people. We do not gather by accident; we are divinely summoned by the Spirit to assemble for worship, the preaching of the Word, and mutual edification.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VISION & MISSION -->
+        <section id="vision-mission">
+            <div class="vm-container">
+                <h2>Our Vision</h2>
+                <h3>The Future We See</h3>
+                <p><strong>To foster a transformational worship lifestyle, becoming a generation that carries the presence and power of God into every sphere of life.</strong></p>
+                <p>The vision goes beyond the event. We do not merely want people to experience God's presence for a few hours in a sanctuary; we want that encounter to reshape their everyday lives. A transformational worship lifestyle means that worship is no longer just an activity, but our core identity. We envision believers who live in constant awareness of God, impacting their homes, workplaces, and communities with the reality of who He is.</p>
+                <p class="scripture-ref" style="color: #ddd;">{Colossians 3:17, 23, Isaiah 43:7,21}</p>
+
+                <h2 style="margin-top: 50px;">Our Mission</h2>
+                <p><strong>To cultivate an holistic culture of worship that begins in private devotion and overflows into corporate celebration, convening Spirit-filled gatherings where the true Gospel is preached and the Holy Spirit brings life.</strong></p>
+            </div>
+        </section>
+
+        <!-- FOUR PILLARS -->
+        <section id="pillars">
+            <h2>Our Four Pillars</h2>
+            <div class="pillars-grid">
+                <div class="pillar-card">
+                    <h3><span>01</span> The True Gospel – Our Anchor</h3>
+                    <p>Jesus Christ is the foundation of our convocation. We unashamedly preach Christ incarnate, lived a perfect/righteous life, Him crucified, risen, and returning. Every song, every prayer, and every sermon points back to the cross. We believe that experiencing God's presence is impossible apart from the saving grace of Jesus Christ.</p>
+                </div>
+                <div class="pillar-card">
+                    <h3><span>02</span> Spirit-Filled Worship - Our Response</h3>
+                    <p>We are committed to creating an atmosphere where the Holy Spirit directs our gatherings. Our worship is not a musical performance; it is our response to God's revelation. We prioritize authentic, heartfelt praise and intimate worship, making room for the spontaneous leading of the Spirit, prophetic ministry, and spiritual gifts, all exercised biblically and in order.</p>
+                </div>
+                <div class="pillar-card">
+                    <h3><span>03</span> Biblical Conviction - The Foundation</h3>
+                    <p>As a conventional gathering, we are deeply rooted in the authority of Scripture. We do not chase emotional experiences; we submit our emotions and experiences to the Word of God. Every manifestation is tested against Scripture, and every teaching is expository and Christ-centered.</p>
+                </div>
+                <div class="pillar-card">
+                    <h3><span>04</span> Lifestyle Transformation - The Outcome</h3>
+                    <p>The convocation is not an endpoint; it is an equipping station. We gather to be filled, but we scatter to serve. A true encounter with the Holy Spirit always results in transformed character, bold witness, and active compassion. We are called to be salt and light, carrying the reality of our worship into our everyday environments.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CORE MESSAGE -->
+        <section id="gospel">
+            <div class="core-message">
+                <h2>The Core Message: The Gospel</h2>
+                <p>The Gospel is the source of our life. Through the sacrifice of Jesus Christ on the cross, sin is forgiven and the barrier between God and man is removed. Because of the cross, the Holy Spirit is given to the believer.</p>
+                <p>We preach that salvation comes only through faith in Christ, and that the indwelling of the Holy Spirit empowers the believer to live a holy, transformed, and fruitful life. We call the church to complete surrender—yielding our will to God so that His Spirit may fully direct us.</p>
+                <p class="scripture-ref" style="color: var(--radiant-gold);">Romans 12:1, Galatians 2:20</p>
+            </div>
+        </section>
+
+        <!-- LEADERSHIP -->
+        <section id="leadership" class="leadership-section">
+            <h2>The Leadership</h2>
+            <div class="leader-name">Founder & Lead Convener: PHILPEACE</div>
+            <p style="text-align: center; max-width: 700px; margin: 0 auto;">PHILPEACE is a visionary, worshipper, and carrier of the Gospel, called to lead this generation into a deeper relationship with God. With a deep passion for the Word and a sensitivity to the Holy Spirit, PHILPEACE leads the Glory Stream Convocation as a founder and convener. His commitment is to see that every believer is equipped to live a transformational worship lifestyle, rooted in Scripture and empowered by the Spirit.</p>
+        </section>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>EMAIL P5062E@GMAIL.COM | 0702987550</p>
+        <a href="https://philvin-dev.vercel.app" target="_blank" class="dev-btn">DEVELOPED BY PHILVIN-DEV</a>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // Minimize: Scrolls to the footer
+        function minimizeWindow() {
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+
+        // Maximize: Toggles the browser's full-screen mode
+        function maximizeWindow() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    // Silent fail on mobile if not supported
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Close: Shows the farewell overlay
+        function closeWindow() {
+            document.getElementById('shutdownScreen').classList.add('active');
+        }
+
+        // Click anywhere on the shutdown screen to "reopen" the page
+        document.getElementById('shutdownScreen').addEventListener('click', function() {
+            this.classList.remove('active');
+        });
+
+        // Bottom Navigation Active State Logic
+        const navItems = document.querySelectorAll('.nav-item');
+        const sections = document.querySelectorAll('section');
+
+        // Add click event to smooth scroll and set active class
+        navItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                navItems.forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Change active nav item on scroll
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100; // Offset for top bar
+                if (pageYOffset >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === '#' + current) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
