@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Glory Stream</title>
+    <title>Glory Stream Convocation</title>
     <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -22,7 +22,7 @@
 
         body {
             font-family: 'Times New Roman', Times, serif;
-            background-color: #050A1F; /* Dark base for glass to pop */
+            background-color: #050A1F; 
             color: #222222;
             line-height: 1.6;
             padding-top: 60px;
@@ -178,6 +178,71 @@
             color: var(--deep-blue); margin-bottom: 15px;
         }
 
+        /* --- FOUNDER IMAGE ANIMATIONS --- */
+        .founder-img-container {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 30px;
+            position: relative;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: float-smooth 4s ease-in-out infinite;
+        }
+
+        /* Rotating Gradient Ring around the image */
+        .founder-img-container::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            padding: 4px; /* Thickness of the ring */
+            background: conic-gradient(var(--radiant-gold), var(--deep-blue), var(--radiant-gold), var(--deep-blue), var(--radiant-gold));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            animation: rotate-ring 4s linear infinite;
+        }
+
+        /* Pulsating Glow behind the image */
+        .founder-img-container::after {
+            content: '';
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            border-radius: 50%;
+            background: transparent;
+            box-shadow: 0 0 30px rgba(255, 202, 40, 0.3);
+            z-index: -1;
+            animation: glow-pulse 3s infinite alternate;
+        }
+
+        .founder-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 5px solid rgba(5, 10, 31, 0.8); /* Dark border to separate from rotating ring */
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes float-smooth {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes rotate-ring {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes glow-pulse {
+            from { box-shadow: 0 0 20px rgba(255, 202, 40, 0.2); }
+            to { box-shadow: 0 0 50px rgba(255, 202, 40, 0.6), 0 0 80px rgba(13, 59, 102, 0.3); }
+        }
+
         /* --- GLASS FOOTER --- */
         footer {
             background: rgba(8, 43, 77, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -224,6 +289,7 @@
         @media (max-width: 767px) {
             body { padding-bottom: var(--bottom-nav-height); }
             footer { padding-bottom: calc(var(--bottom-nav-height) + 20px); }
+            .founder-img-container { width: 150px; height: 150px; }
         }
 
         @media (min-width: 768px) {
@@ -250,7 +316,7 @@
 
     <!-- GLASS TOP HEADER BAR -->
     <div class="app-titlebar">
-        <a href="#mandate" class="titlebar-title">THE GLORY STREAM</a>
+        <a href="#mandate" class="titlebar-title">GLORY STREAM</a>
         <div class="right-controls">
             <div class="desktop-nav">
                 <a href="#mandate">Home</a>
@@ -294,7 +360,7 @@
 
     <!-- MAIN CONTENT -->
     <header id="mandate">
-        <h1>THE GLORY STREAM CONVOCATION</h1>
+        <h1>GLORY STREAM CONVOCATION</h1>
     </header>
 
     <div class="container">
@@ -330,6 +396,7 @@
         <section id="vision-mission">
             <div class="vm-container reveal">
                 <h2>Our Vision</h2>
+                <h3>The Future We See</h3>
                 <p><strong>To foster a transformational worship lifestyle, becoming a generation that carries the presence and power of God into every sphere of life.</strong></p>
                 <p>The vision goes beyond the event. We do not merely want people to experience God's presence for a few hours in a sanctuary; we want that encounter to reshape their everyday lives. A transformational worship lifestyle means that worship is no longer just an activity, but our core identity. We envision believers who live in constant awareness of God, impacting their homes, workplaces, and communities with the reality of who He is.</p>
                 <p style="color: #ddd; font-style: italic; font-size: 0.9rem;">{Colossians 3:17, 23, Isaiah 43:7,21}</p>
@@ -369,13 +436,21 @@
             </div>
         </section>
 
+        <!-- LEADERSHIP WITH ANIMATED FOUNDER IMAGE -->
         <section id="leadership" class="leadership-section">
             <h2 class="reveal">The Leadership</h2>
-            <div class="glass-card reveal" style="max-width: 700px; margin: 0 auto; text-align: center;">
+            <div class="glass-card reveal" style="max-width: 700px; margin: 0 auto; text-align: center; padding: 40px 25px;">
+                
+                <!-- Founder Image Container -->
+                <div class="founder-img-container">
+                    <img src="phil.jpg" alt="PHILPEACE" class="founder-img">
+                </div>
+                
                 <div class="leader-name">Founder & Lead Convener: PHILPEACE</div>
                 <p style="color: #222;">PHILPEACE is a visionary, worshipper, and carrier of the Gospel, called to lead this generation into a deeper relationship with God. With a deep passion for the Word and a sensitivity to the Holy Spirit, PHILPEACE leads the Glory Stream Convocation as a founder and convener. His commitment is to see that every believer is equipped to live a transformational worship lifestyle, rooted in Scripture and empowered by the Spirit.</p>
             </div>
         </section>
+
     </div>
 
     <!-- GLASS FOOTER -->
@@ -387,7 +462,7 @@
                     <div class="contact-row">
                         <a href="mailto:P5062E@GMAIL.COM" class="contact-item">
                             <svg class="contact-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-                            <span>p5062e@gmail.com</span>
+                            <span>P5062E@GMAIL.COM</span>
                         </a>
                         <a href="tel:0702987550" class="contact-item">
                             <svg class="contact-icon" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
